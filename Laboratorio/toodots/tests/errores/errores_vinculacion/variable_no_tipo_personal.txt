@@ -1,7 +1,0 @@
-OBJECTS
-- b:Char,
-
-PROCESS
-- a:Int,
-
-a := b.nombre,

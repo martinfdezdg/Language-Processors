@@ -1,6 +1,0 @@
-OBJECTS
-
-
-PROCESS
-+ hola:Void():
-.

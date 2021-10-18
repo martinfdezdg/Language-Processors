@@ -1,5 +1,0 @@
-OBJECTS
-- lista:[Int],
-- lista:[Int],
-
-PROCESS

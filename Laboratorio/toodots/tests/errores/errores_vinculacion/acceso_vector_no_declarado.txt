@@ -1,5 +1,0 @@
-OBJECTS
-- a:Int,
-
-PROCESS
-a := b[0],

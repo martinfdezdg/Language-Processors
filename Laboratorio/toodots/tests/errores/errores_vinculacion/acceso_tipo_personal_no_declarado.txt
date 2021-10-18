@@ -1,5 +1,0 @@
-OBJECTS
-
-PROCESS
-? (Persona.edad):
-.

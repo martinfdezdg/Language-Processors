@@ -1,5 +1,0 @@
-OBJECTS
-+ suma:Void(operando:Int, operando:Int):
-.
-
-PROCESS
