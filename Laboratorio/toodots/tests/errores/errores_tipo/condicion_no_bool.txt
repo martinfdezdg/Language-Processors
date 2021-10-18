@@ -1,0 +1,5 @@
+OBJECTS
+
+PROCESS
+@ (1 + 2):
+.

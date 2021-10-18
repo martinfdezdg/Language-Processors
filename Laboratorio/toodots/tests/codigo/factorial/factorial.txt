@@ -1,0 +1,12 @@
+OBJECTS
+
+PROCESS
+- n:Int := 12,
+- fact:Int := 1,
+
+- i:Int := 1,
+@ (i < n):
+  fact := fact * i,
+  >> fact,
+  i := i + 1,
+.

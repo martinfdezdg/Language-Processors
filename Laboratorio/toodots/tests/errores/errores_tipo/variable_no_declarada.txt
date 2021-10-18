@@ -1,0 +1,4 @@
+OBJECTS
+
+PROCESS
+a := 1,

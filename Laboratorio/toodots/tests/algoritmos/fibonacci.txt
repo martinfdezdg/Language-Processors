@@ -1,0 +1,18 @@
+OBJECTS
+- number:Int := 10, ((Longitud de la solucion deseada))
+- sol:[Int](number), ((Variable donde se almacena la solucion))
+- n1:Int := 0,
+- n2:Int := 1,
+- n3:Int,
+- i:Int := 2,
+
+PROCESS
+sol[0] := n1,
+sol[1] := n2,
+@ (i < number):
+   n3 := n1+n2,
+   sol[i] := n3,
+   n1 := n2,
+   n2 := n3,
+   i := i + 1,
+.

@@ -1,0 +1,25 @@
+OBJECTS
+
+PROCESS
+- number:Int := 10,
+- sol:[Int] := [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+- n1:Int := 0,
+- n2:Int := 1,
+- n3:Int := 0,
+- i:Int := 2,
+
+sol[0] := n1,
+sol[1] := n2,
+@ (i < number):
+   n3 := n1 + n2,
+   sol[i] := n3,
+   n1 := n2,
+   n2 := n3,
+   i := i + 1,
+.
+
+- j:Int := 0,
+@ (j < number):
+  >> sol[j],
+  j := j + 1,
+.

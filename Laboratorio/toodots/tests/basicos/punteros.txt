@@ -1,0 +1,7 @@
+OBJECTS
+- a:Char := "a",
+- >b:Char,
+
+PROCESS
+b := <a, 
+>b := "b",

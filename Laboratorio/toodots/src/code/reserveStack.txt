@@ -1,0 +1,17 @@
+(func $reserveStack (param $size i32)
+   (result i32)
+   get_global $MP
+   get_global $SP
+   set_global $MP
+   get_global $SP
+   get_local $size
+   i32.add
+   set_global $SP
+   get_global $SP
+   get_global $NP
+   i32.gt_u
+   if
+   i32.const 3
+   call $exception
+   end
+)

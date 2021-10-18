@@ -1,0 +1,391 @@
+package asint;
+
+import java_cup.runtime.*;
+import alex.AnalizadorLexicoTiny;
+import alex.TokenValue;
+import alex.UnidadLexica;
+import errors.GestionErroresTiny;
+
+import ast.*;
+import ast.Instrucciones.*;
+import ast.Expresiones.*;
+import ast.Tipos.*;
+
+import java.util.List;
+import java.util.ArrayList;
+
+
+
+/* Preliminares para configurar y usar scanner.  */
+
+scan with {: return getScanner().next_token(); :};
+action code {: 
+   private ASExpresiones ase = new ASExpresiones();
+   private ASInstrucciones asi = new ASInstrucciones();
+   private ASTipos ast = new ASTipos();
+:};
+parser code {: 
+   private GestionErroresTiny errores;
+   public void syntax_error(Symbol unidadLexica) {
+     errores.errorSintactico((UnidadLexica)unidadLexica);
+   }
+:};
+init with {: 
+   errores = new GestionErroresTiny();
+   AnalizadorLexicoTiny alex = (AnalizadorLexicoTiny)getScanner();
+   alex.fijaGestionErrores(errores);
+:};
+
+
+
+/* Terminales (tokens devueltos por scanner). */
+
+terminal TokenValue OBJECTS, PROCESS,
+		   ENUM, STRUCT,
+                    BUCLE, ASIGN, MAS, MENOS,
+                    ID, ENT, REAL, TRUE, FALSE, CAR,
+                    NOT, MULT, DIV, MOD,
+                    MENOR, MAYOR, MENORIGUAL, MAYORIGUAL, IGUAL, DISTINTO,
+                    AND, OR,
+                    PA, PC, CA, CC, LC, INTC, EXCC,
+                    C, P, DP,
+                    PRINT;
+terminal T VOID, INT, FLOAT, BOOL, CHAR;
+
+
+/* No terminales */
+
+non terminal P Programa;
+non terminal Id Id;
+non terminal E Exp, Exp0, Exp1, Exp2, Exp3, Exp4, Exp5, Exp6, Exp7, Acceso, ACustom, AVector, APuntero, ADireccion, ALlamada;
+non terminal I InstruccionObjetos, InstruccionProceso, DVariable, DStruct, DEnum, DVector, DPuntero, DFuncion, DParametro, Asignacion, Condicion, Bucle, Llamada, Imprimir;
+non terminal T Tipo, TipoBasico, TipoComplejo;
+non terminal List<Nodo> LObjetos, LProceso, LExp, LId, LAtributos, LParametros;
+
+
+
+/* Estructura del programa: OBJECTS-PROCESS */
+
+Programa ::= OBJECTS:idObj LObjetos:lObjetos PROCESS:idPro LProceso:lProceso
+             {: RESULT = new P(lObjetos,idObj.getFila(),idObj.getColumna(),lProceso,idPro.getFila(),idPro.getColumna()); :};
+
+Programa ::= OBJECTS:idObj LObjetos:lObjetos
+             {: RESULT = new P(lObjetos,idObj.getFila(),idObj.getColumna()); :};
+
+
+/* Expresiones y operadores con prioridad */
+
+Exp ::= Exp0:vExp
+        {: RESULT = vExp; :};
+
+Exp0 ::= Exp0:vExp1 OR:id Exp1:vExp2
+         {: RESULT = ase.or(vExp1,vExp2,id.getFila(),id.getColumna()); :};
+Exp0 ::= Exp1:vExp
+         {: RESULT = vExp; :};
+
+Exp1 ::= Exp1:vExp1 AND:id Exp2:vExp2
+         {: RESULT = ase.and(vExp1,vExp2,id.getFila(),id.getColumna()); :};
+Exp1 ::= Exp2:vExp
+         {: RESULT = vExp; :};
+
+Exp2 ::= Exp2:vExp1 IGUAL:id Exp3:vExp2
+         {: RESULT = ase.igual(vExp1,vExp2,id.getFila(),id.getColumna()); :};
+Exp2 ::= Exp2:vExp1 DISTINTO:id Exp3:vExp2
+         {: RESULT = ase.distinto(vExp1,vExp2,id.getFila(),id.getColumna()); :};
+Exp2 ::= Exp3:vExp
+         {: RESULT = vExp; :};
+
+Exp3 ::= Exp3:vExp1 MENOR:id Exp4:vExp2
+         {: RESULT = ase.menor(vExp1,vExp2,id.getFila(),id.getColumna()); :};
+Exp3 ::= Exp3:vExp1 MAYOR:id Exp4:vExp2
+         {: RESULT = ase.mayor(vExp1,vExp2,id.getFila(),id.getColumna()); :};
+Exp3 ::= Exp3:vExp1 MENORIGUAL:id Exp4:vExp2
+         {: RESULT = ase.menorigual(vExp1,vExp2,id.getFila(),id.getColumna()); :};
+Exp3 ::= Exp3:vExp1 MAYORIGUAL:id Exp4:vExp2
+         {: RESULT = ase.mayorigual(vExp1,vExp2,id.getFila(),id.getColumna()); :};
+Exp3 ::= Exp4:vExp
+         {: RESULT = vExp; :};
+
+Exp4 ::= Exp4:vExp1 MAS:id Exp5:vExp2
+         {: RESULT = ase.suma(vExp1,vExp2,id.getFila(),id.getColumna()); :};
+Exp4 ::= Exp4:vExp1 MENOS:id Exp5:vExp2
+         {: RESULT = ase.resta(vExp1,vExp2,id.getFila(),id.getColumna()); :};
+Exp4 ::= Exp5:vExp
+         {: RESULT = vExp; :};
+
+Exp5 ::= Exp5:vExp1 MULT:id Exp6:vExp2
+         {: RESULT = ase.multiplicacion(vExp1,vExp2,id.getFila(),id.getColumna()); :};
+Exp5 ::= Exp5:vExp1 DIV:id Exp6:vExp2
+         {: RESULT = ase.division(vExp1,vExp2,id.getFila(),id.getColumna()); :};
+Exp5 ::= Exp5:vExp1 MOD:id Exp6:vExp2
+         {: RESULT = ase.modulo(vExp1,vExp2,id.getFila(),id.getColumna()); :};
+Exp5 ::= Exp6:vExp
+         {: RESULT = vExp; :};
+
+Exp6 ::= NOT:id Exp6:vExp
+         {: RESULT = ase.not(vExp,id.getFila(),id.getColumna()); :};
+Exp6 ::= Exp7:vExp
+         {: RESULT = vExp; :};
+
+Exp7 ::= ENT:id
+         {: RESULT = ase.entero(id.getLexema(),id.getFila(),id.getColumna()); :};
+Exp7 ::= REAL:id
+         {: RESULT = ase.real(id.getLexema(),id.getFila(),id.getColumna()); :};
+Exp7 ::= TRUE:id
+         {: RESULT = ase.bool(id.getLexema(),id.getFila(),id.getColumna()); :};
+Exp7 ::= FALSE:id
+         {: RESULT = ase.bool(id.getLexema(),id.getFila(),id.getColumna()); :};
+Exp7 ::= CAR:id
+         {: RESULT = ase.caracter(id.getLexema(),id.getFila(),id.getColumna()); :};
+Exp7 ::= ID:id
+         {: RESULT = ase.id(id.getLexema(),id.getFila(),id.getColumna()); :};
+Exp7 ::= PA Exp0:vExp PC
+         {: RESULT = vExp; :};
+Exp7 ::= CA:tv LExp:lExp CC
+         {: RESULT = ase.array(lExp,tv.getFila(),tv.getColumna()); :};
+
+Exp7 ::= ACustom:vACustom
+         {: RESULT = vACustom; :};
+Exp7 ::= AVector:vAVector
+         {: RESULT = vAVector; :};
+Exp7 ::= APuntero:vAPuntero
+         {: RESULT = vAPuntero; :};
+Exp7 ::= ADireccion:vADireccion
+         {: RESULT = vADireccion; :};
+Exp7 ::= ALlamada:vALlamada
+         {: RESULT = vALlamada; :};
+
+Acceso ::= ACustom:vACustom
+           {: RESULT = vACustom; :};
+Acceso ::= AVector:vAVector
+           {: RESULT = vAVector; :};
+Acceso ::= APuntero:vAPuntero
+           {: RESULT = vAPuntero; :};
+Acceso ::= ADireccion:vADireccion
+           {: RESULT = vADireccion; :};
+
+ACustom ::= ID:id P:tv Id:atributo
+            {: RESULT = ase.aCustom(id.getLexema(),atributo,tv.getFila(),tv.getColumna()); :};
+ACustom ::= AVector:aVector P:tv Id:atributo
+            {: RESULT = ase.aCustom(aVector,atributo,tv.getFila(),tv.getColumna()); :};
+
+AVector ::= ID:id CA Exp:vExp CC
+            {: RESULT = ase.aVector(id.getLexema(),vExp,id.getFila(),id.getColumna()); :};
+AVector ::= ACustom:aCustom CA:tv Exp:vExp CC
+            {: RESULT = ase.aVector(aCustom,vExp,tv.getFila(),tv.getColumna()); :};
+
+APuntero ::= MAYOR ID:id
+             {: RESULT = ase.aPuntero(id.getLexema(),id.getFila(),id.getColumna()); :};
+ADireccion ::= MENOR ID:id
+               {: RESULT = ase.aDireccion(id.getLexema(),id.getFila(),id.getColumna()); :};
+ALlamada ::= ID:id PA LExp:lExp PC
+             {: RESULT = ase.aLlamada(id.getLexema(),lExp,id.getFila(),id.getColumna()); :};
+
+
+/* Instrucciones */
+
+InstruccionObjetos ::= DVariable:vDVariable
+                       {: RESULT = vDVariable; :};
+InstruccionObjetos ::= DStruct:vDStruct
+                       {: RESULT = vDStruct; :};
+InstruccionObjetos ::= DEnum:vDEnum
+                       {: RESULT = vDEnum; :};
+InstruccionObjetos ::= DVector:vDVector
+                       {: RESULT = vDVector; :};
+InstruccionObjetos ::= DFuncion:vDFuncion
+                       {: RESULT = vDFuncion; :};
+InstruccionObjetos ::= DPuntero:vDPuntero
+                       {: RESULT = vDPuntero; :};
+
+InstruccionProceso ::= DVariable:vDVariable
+                       {: RESULT = vDVariable; :};
+InstruccionProceso ::= DVector:vDVector
+                       {: RESULT = vDVector; :};
+InstruccionProceso ::= DPuntero:vDPuntero
+                       {: RESULT = vDPuntero; :};
+InstruccionProceso ::= Llamada:vLlamada
+                       {: RESULT = vLlamada; :};
+InstruccionProceso ::= Asignacion:vAsignacion
+                       {: RESULT = vAsignacion; :};
+InstruccionProceso ::= Condicion:vCondicion
+                       {: RESULT = vCondicion; :};
+InstruccionProceso ::= Bucle:vBucle
+                       {: RESULT = vBucle; :};
+InstruccionProceso ::= Imprimir:vImprimir
+                       {: RESULT = vImprimir; :};
+
+DVariable ::= MENOS:tv Id:id DP TipoBasico:tipo C
+              {: RESULT = asi.dVariable(id,tipo,tv.getFila(),tv.getColumna()); :};
+DVariable ::= MENOS:tv Id:id DP TipoBasico:tipo ASIGN Exp:vExp C
+              {: RESULT = asi.dVariable(id,tipo,vExp,tv.getFila(),tv.getColumna()); :};
+
+DVector ::= MENOS:tv Id:id DP TipoComplejo:tipo C
+            {: RESULT = asi.dVector(id,tipo,tv.getFila(),tv.getColumna()); :};
+DVector ::= MENOS:tv Id:id DP TipoComplejo:tipo PA Exp:vExp PC C
+            {: RESULT = asi.dVector(id,tipo,vExp,tv.getFila(),tv.getColumna()); :};
+DVector ::= MENOS:tv Id:id DP TipoComplejo:tipo ASIGN CA LExp:lExp CC C
+            {: RESULT = asi.dVector(id,tipo,lExp,tv.getFila(),tv.getColumna()); :};
+
+DStruct ::= MENOS:tv Id:id DP STRUCT DP LAtributos:lAtributos P
+            {: RESULT = asi.dStruct(id,lAtributos,tv.getFila(),tv.getColumna()); :};
+
+DEnum ::= MENOS:tv Id:id DP ENUM DP LId:lConstantes P
+          {: RESULT = asi.dEnum(id,lConstantes,tv.getFila(),tv.getColumna()); :};
+
+DPuntero ::= MENOS MAYOR ID:id DP TipoBasico:tipo C
+             {: RESULT = asi.dPuntero(new Id(id.getLexema(),id.getFila(),id.getColumna()),tipo,id.getFila(),id.getColumna()); :};
+DPuntero ::= MENOS MAYOR ID:id DP TipoBasico:tipo ASIGN Exp:vExp C
+             {: RESULT = asi.dPuntero(new Id(id.getLexema(),id.getFila(),id.getColumna()),tipo,vExp,id.getFila(),id.getColumna()); :};
+
+DFuncion ::= MAS:tv Id:id DP Tipo:tipo PA LParametros:lParametros PC DP LProceso:lProceso LC Exp:vExp C P
+             {: RESULT = asi.dFuncion(id,tipo,lParametros,lProceso,vExp,tv.getFila(),tv.getColumna()); :};
+DFuncion ::= MAS:tv Id:id DP Tipo:tipo PA LParametros:lParametros PC DP LProceso:lProceso P
+             {: RESULT = asi.dFuncion(id,tipo,lParametros,lProceso,tv.getFila(),tv.getColumna()); :};
+
+DParametro ::= Id:id DP:tv Tipo:tipo
+               {: RESULT = asi.dParametro(id,tipo,tv.getFila(),tv.getColumna()); :};
+
+Asignacion ::= Id:id ASIGN:tv Exp:vExp C
+               {: RESULT = asi.asignacion(id,vExp,tv.getFila(),tv.getColumna()); :};
+Asignacion ::= Acceso:acceso ASIGN:tv Exp:vExp C
+               {: RESULT = asi.asignacion(acceso,vExp,tv.getFila(),tv.getColumna()); :};
+
+Condicion ::= INTC:tv PA Exp:vExp PC DP LProceso:lProceso P
+              {: RESULT = asi.condBasica(vExp,lProceso,tv.getFila(),tv.getColumna()); :};
+Condicion ::= INTC:tv PA Exp:vExp PC DP LProceso:lProceso1 P EXCC DP LProceso:lProceso2 P
+              {: RESULT = asi.condCompleja(vExp,lProceso1,lProceso2,tv.getFila(),tv.getColumna()); :};
+
+Bucle ::= BUCLE:tv PA Exp:vExp PC DP LProceso:lProceso P
+          {: RESULT = asi.bucle(vExp,lProceso,tv.getFila(),tv.getColumna()); :};
+
+Llamada ::= Id:id PA LExp:lArgumentos PC C:tv
+            {: RESULT = asi.llamada(id,lArgumentos,tv.getFila(),0); :};
+
+Imprimir ::= PRINT:tv Exp:vExp C
+             {: RESULT = asi.imprimir(vExp,tv.getFila(),tv.getColumna()); :};
+
+Id ::= ID:id
+       {: RESULT = new Id(id.getLexema(),id.getFila(),id.getColumna()); :};
+
+LExp ::= LExp:lista C Exp:vExp
+         {: lista.add(vExp); RESULT = lista; :};
+LExp ::= Exp:vExp
+         {: List<Nodo> lista = new ArrayList<Nodo>(); lista.add(vExp); RESULT = lista; :};
+LExp ::= // vacio
+         {: RESULT = new ArrayList<Nodo>(); :};
+
+LId ::= LId:lista C Id:id
+        {: lista.add(id); RESULT = lista; :};
+LId ::= Id:id
+        {: List<Nodo> lista = new ArrayList<Nodo>(); lista.add(id); RESULT = lista; :};
+LId ::= // vacio
+        {: RESULT = new ArrayList<Nodo>(); :};
+
+LAtributos ::= LAtributos:lista DVariable:vDVariable 
+               {: lista.add(vDVariable); RESULT = lista; :};
+LAtributos ::= LAtributos:lista DVector:vDVector 
+               {: lista.add(vDVector); RESULT = lista; :};
+LAtributos ::= // vacio
+               {: RESULT = new ArrayList<Nodo>(); :};
+
+LParametros ::= LParametros:lista C DParametro:vDParametro
+                {: lista.add(vDParametro); RESULT = lista; :};
+LParametros ::= DParametro:vDParametro
+                {: List<Nodo> lista = new ArrayList<Nodo>(); lista.add(vDParametro); RESULT = lista; :};
+LParametros ::= // vacio
+                {: RESULT = new ArrayList<Nodo>(); :};
+
+
+LObjetos ::= LObjetos:lista InstruccionObjetos:instruccion 
+                  {: lista.add(instruccion); RESULT = lista; :};
+LObjetos ::= // vacio
+                  {: RESULT = new ArrayList<Nodo>(); :};
+
+LProceso ::= LProceso:lista InstruccionProceso:instruccion 
+                  {: lista.add(instruccion); RESULT = lista; :};
+LProceso ::= // vacio
+                  {: RESULT = new ArrayList<Nodo>(); :};
+
+
+/* Tipos */
+
+Tipo ::= TipoBasico:tipo
+         {: RESULT = tipo; :};
+Tipo ::= TipoComplejo:tipo
+         {: RESULT = tipo; :};
+
+TipoBasico ::= VOID
+               {: RESULT = ast.tVoid(); :};
+TipoBasico ::= INT
+               {: RESULT = ast.tInt(); :};
+TipoBasico ::= FLOAT
+               {: RESULT = ast.tFloat(); :};
+TipoBasico ::= BOOL
+               {: RESULT = ast.tBool(); :};
+TipoBasico ::= CHAR
+               {: RESULT = ast.tChar(); :};
+TipoBasico ::= ID:id
+               {: RESULT = ast.tCustom(id.getLexema()); :};
+
+TipoComplejo ::= CA TipoBasico:tipo CC
+                 {: RESULT = ast.tVector(tipo); :};
+
+
+/* Errores */
+
+Programa ::= error
+             {: System.out.println("Falta la zona de objetos"); RESULT = null; :};
+
+Id ::= error
+       {: System.out.println("Identificador no valido"); RESULT = null; :};
+
+Tipo ::= error
+         {: System.out.println("Tipo no valido"); RESULT = null; :};
+
+DVariable ::= MENOS:tv error C
+              {: System.out.println("Error en la estructura de la declaracion"); RESULT = null; :};
+DVariable ::= MENOS:tv Id:id DP error C
+              {: System.out.println("Error en el tipo de la declaracion"); RESULT = null; :};
+DVariable ::= MENOS:tv Id:id DP TipoBasico:tipo ASIGN error C
+              {: System.out.println("Error en el valor inicial de la variable"); RESULT = null; :};
+
+DVector ::= MENOS:tv Id:id DP TipoComplejo:tipo PA error PC C
+            {: System.out.println("Error en la longitud del vector"); RESULT = null; :};
+DVector ::= MENOS:tv Id:id DP TipoComplejo:tipo ASIGN error C
+            {: System.out.println("Error en el valor inicial del vector"); RESULT = null; :};
+
+DStruct ::= MENOS:tv Id:id DP STRUCT DP error P
+            {: System.out.println("Error en las declaraciones del struct"); RESULT = null; :};
+
+DPuntero ::= MENOS MAYOR error C
+             {: System.out.println("Error en la estructura de la declaracion del puntero"); RESULT = null; :};
+DPuntero ::= MENOS MAYOR ID:id DP error C
+             {: System.out.println("Error en el tipo de la declaracion del puntero"); RESULT = null; :};
+DPuntero ::= MENOS MAYOR ID:id DP TipoBasico:tipo ASIGN error C
+             {: System.out.println("Error en el valor inicial del puntero"); RESULT = null; :};
+
+DFuncion ::= MAS:tv error P
+             {: System.out.println("Error en la estructura de la funcion"); RESULT = null; :};
+DFuncion ::= MAS:tv Id:id DP error P
+             {: System.out.println("Error en el tipo de la funcion"); RESULT = null; :};
+
+DParametro ::= Id:id error
+               {: System.out.println("Error en el el parametro de la funcion por no tener tipo"); RESULT = null; :};
+
+Asignacion ::= Id:id ASIGN:tv error C
+               {: System.out.println("Error en la expresion de asignacion"); RESULT = null; :};
+
+Condicion ::= INTC:tv error P
+              {: System.out.println("Error en la estructura condicional"); RESULT = null; :};
+Condicion ::= INTC:tv PA error P
+              {: System.out.println("Error en la condicion del condicional"); RESULT = null; :};
+
+Bucle ::= BUCLE:tv error P
+          {: System.out.println("Error en la estructura del bucle"); RESULT = null; :};
+Bucle ::= BUCLE:tv PA error P
+          {: System.out.println("Error en la condicion del bucle"); RESULT = null; :};
+
+APuntero ::= MAYOR error
+             {: System.out.println("Error en el identificador del puntero"); RESULT = null; :};
+ADireccion ::= MENOR error
+               {: System.out.println("Error en el identificador de la direccion"); RESULT = null; :};

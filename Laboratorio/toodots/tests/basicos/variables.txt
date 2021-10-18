@@ -1,0 +1,16 @@
+OBJECTS
+- x:Int,
+- y:Int := 1,
+
+- p:Bool,
+- q:Bool := false,
+
+- a:Char,
+- b:Char := "B",
+
+PROCESS
+x := y,
+
+p := q,
+
+a := b,

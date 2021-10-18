@@ -1,0 +1,9 @@
+OBJECTS
+- Arbol:Struct:
+  - numHojas:Int,
+.
+
+PROCESS
+- a:Arbol,
+- b:Char,
+b := a.nombre[0],

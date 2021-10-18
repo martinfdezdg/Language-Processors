@@ -1,0 +1,2 @@
+OBJECTS
+- >punt:Int := "A",

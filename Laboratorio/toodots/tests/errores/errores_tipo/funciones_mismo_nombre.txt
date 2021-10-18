@@ -1,0 +1,8 @@
+OBJECTS
++ fun:Void():
+.
++ fun:Int():
+  } 0,
+.
+
+PROCESS

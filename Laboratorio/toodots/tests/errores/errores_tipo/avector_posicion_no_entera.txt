@@ -1,0 +1,5 @@
+OBJECTS
+- vector:[Int] := [1, 2, 3],
+
+PROCESS
+- primero:Int := vector["1"],

@@ -1,0 +1,9 @@
+(func $freeStack (type $_sig_void)
+   get_global $MP
+   i32.load
+   i32.load offset=4
+   set_global $SP
+   get_global $MP
+   i32.load
+   set_global $MP   
+)

@@ -1,0 +1,10 @@
+OBJECTS
+- Persona:Struct:
+  -nombre:[Char],
+  -edad:Int,
+.
+- Persona:Struct:
+  -peso:Int,
+.
+
+PROCESS

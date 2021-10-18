@@ -1,0 +1,4 @@
+OBJECTS
+
+PROCESS
+suma(1, 2),

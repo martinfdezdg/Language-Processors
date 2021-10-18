@@ -1,0 +1,26 @@
+OBJECTS
+- l:Int := 7,
+- a:[Int] := [64, 34, 25, 12, 22, 11, 90],
+- sol:[Int](l),
++ bubbleSort:[Int]():
+   - i:Int := 0,
+   - j:Int := 0,
+   @ (i < l - 1):
+      @ (j < l - i - 1):
+         ? (a[j] > a[j + 1]):
+            swap(a, j, j + 1),
+         .
+         j := j + 1,
+      .
+      i := i + 1,
+   .
+   } a,
+.
++ swap:Void(a:[Int], x:Int, y:Int):
+   - temp:Int := a[x],
+   a[x] := a[y],
+   a[y] := temp,
+.
+
+PROCESS
+sol := bubbleSort(),

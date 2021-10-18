@@ -1,0 +1,28 @@
+OBJECTS
+- MAX:Int := 1000,
+- array:[Int](MAX),
+- size:Int := 0,
+- it:Int := -1,
++ Stack:Void(sizeAux:Int):
+   size := sizeAux,
+.
++ push:Void(elem:Int):
+   ? (size < MAX):
+      it := it + 1,
+      array[it] := elem,
+      size := size + 1,
+   .
+.
++ pop:Void():
+   ? (size > 0):
+      it := it - 1,
+      size := size - 1,
+   .
+.
++ top:Int():
+   - elem:Int := -1,
+   ? (size > 0):
+      elem := array[it],
+   .
+   } elem,
+.

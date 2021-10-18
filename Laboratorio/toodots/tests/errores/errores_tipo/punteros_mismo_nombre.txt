@@ -1,0 +1,5 @@
+OBJECTS
+- >a:Char,
+- >a:Char,
+
+PROCESS

@@ -1,0 +1,20 @@
+OBJECTS
++ incrementa:Int(x:Int):
+  } x + 1,
+.
++ decrementa:Int(x:Int):
+  } x - 1,
+.
+
+- varGlobal:Int := 0,
++ incrementaVarGlobal:Void():
+  varGlobal := incrementa(varGlobal),
+.
+
+PROCESS
+- x:Int := 0,
+x := incrementa(x),
+x := decrementa(x),
+
+incrementaVarGlobal(),
+varGlobal := decrementa(varGlobal),
