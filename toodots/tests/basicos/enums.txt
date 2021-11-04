@@ -1,0 +1,12 @@
+OBJECTS
+- Colors:Enum: RED ,BLUE ,GREEN, YELLOW.
+
+PROCESS
+- r:Colors  := Colors.RED ,
+- v:[Colors] := [Colors.BLUE, Colors.GREEN],
+
+? (v[0] >< r):
+  v[0] := r,
+.
+
+r := v[1],

@@ -1,0 +1,4 @@
+OBJECTS
++ fun:Int():
+  } true,
+.

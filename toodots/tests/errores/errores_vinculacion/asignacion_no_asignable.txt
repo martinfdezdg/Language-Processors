@@ -1,0 +1,5 @@
+OBJECTS
+- Colores:Enum: VERDE, ROJO, AZUL.
+
+PROCESS
+Colores := 0,

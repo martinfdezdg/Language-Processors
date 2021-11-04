@@ -1,0 +1,29 @@
+OBJECTS
+((Tipo enumerado Sexo con los sexos))
+- Sexo:Enum: MASCULINO, FEMENINO.
+
+((Definimos el tipo estructurado Persona con atributos nombre, edad y sexo))
+- Persona:Struct:
+   - nombre:[Char],
+   - edad:Int,
+   - sexo:Sexo,
+.
+
+PROCESS
+((Declaramos una variable del tipo estructurado Persona))
+- belen:Persona,
+((Realizamos asignaciones simples a cada parametro del estructurado))
+belen.nombre := ["b","e","l","e","n"],
+belen.edad := 22,
+belen.sexo := Sexo.FEMENINO,
+
+- martin:Persona,
+martin.nombre := ["M","a","r","t","i","n"],
+martin.edad := 0,
+martin.sexo := Sexo.MASCULINO,
+
+((Accedemos a una posicion del vector nombre del atributo del tipo Persona))
+belen.nombre[0] := "B",
+
+((Asignamos una expresion a un atributo del tipo Persona))
+martin.edad := 10 * 2 + 2,

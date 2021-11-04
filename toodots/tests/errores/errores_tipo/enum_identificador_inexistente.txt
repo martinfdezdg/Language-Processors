@@ -1,0 +1,5 @@
+OBJECTS
+- Color:Enum: ROJO, AZUL, VERDE.
+
+PROCESS
+- camiseta:Color := Color.BLANCO,

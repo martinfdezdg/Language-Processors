@@ -1,0 +1,7 @@
+OBJECTS
+- a:Int := 0,
+- b:Bool := true,
+- c:Char := "c",
+
+PROCESS
+a := c,

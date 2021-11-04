@@ -1,0 +1,10 @@
+   call $reserveStack  ;; returns old MP (dynamic link)
+   get_global $MP
+   i32.store
+   get_global $MP
+   get_global $SP
+   i32.store offset=4
+   get_global $MP
+   i32.const 8
+   i32.add
+   set_local $localsStart
