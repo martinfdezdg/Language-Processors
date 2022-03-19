@@ -1,2 +1,0 @@
-OBJECTS
-- vector:[Int] := [1, 2, "c"],

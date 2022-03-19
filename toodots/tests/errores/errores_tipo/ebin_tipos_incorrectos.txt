@@ -1,3 +1,0 @@
-OBJECTS
-- a:Int := 1 + true,
-- b:Bool := true and 1,

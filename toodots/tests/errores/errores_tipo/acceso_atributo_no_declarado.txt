@@ -1,8 +1,0 @@
-OBJECTS
-- Arbol:Struct:
-  - numHojas:Int,
-.
-
-PROCESS
-- naranjo:Arbol,
-- frutal:Bool := naranjo.esFrutal,

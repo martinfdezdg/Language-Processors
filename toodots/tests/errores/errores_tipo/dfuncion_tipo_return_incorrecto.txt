@@ -1,4 +1,0 @@
-OBJECTS
-+ fun:Int():
-  } true,
-.

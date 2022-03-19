@@ -1,7 +1,0 @@
-OBJECTS
-+ esPar:Bool(x:Int):
-  } x % 2 == 0,
-.
-
-PROCESS
-- b:Bool := esPar(0,2),

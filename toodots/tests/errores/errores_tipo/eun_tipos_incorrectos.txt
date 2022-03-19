@@ -1,2 +1,0 @@
-OBJECTS
-- a:Bool := not 2,
