@@ -1,7 +1,7 @@
 # PLen
 Asignatura: Procesadores del lenguaje
 
-### Proyecto: [Lenguaje *toodots*](https://github.com/martinfdezdg/Custom-Programming-Language)
+### Proyecto: [*toodots*](https://github.com/martinfdezdg/Custom-Programming-Language)
 Implementación de un compilador usando CUP y JLex.
 
 Tras analizar varios lenguajes de programación poco comunes, hemos visto uno que nos ha llamado especialmente la atención: [*Chef*](http://progopedia.com/language/chef/).  
